@@ -548,6 +548,8 @@ def _render_html(
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transaction Network Analyzer — fraud ring findings</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="description" content="Network analysis of BazaarAfrica P2P payments: ranked fraud-ring
 findings, evidence, methodology and measured precision/recall.">
 <style>
@@ -748,12 +750,17 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   }}));
   var network = new vis.Network(el, {{ nodes: nodes, edges: edges }}, {{
     physics: {{ stabilization: {{ iterations: 250 }},
-      barnesHut: {{ gravitationalConstant: -9000, springLength: 130, springConstant: 0.03 }} }},
-    nodes: {{ shape: "dot", scaling: {{ min: 6, max: 34 }} }},
+      barnesHut: {{ gravitationalConstant: -4200, centralGravity: 1.1, springLength: 95,
+        springConstant: 0.05, avoidOverlap: 0.2 }} }},
+    nodes: {{ shape: "dot", scaling: {{ min: 9, max: 38, label: {{ enabled: true, min: 11, max: 20 }} }} }},
     edges: {{ arrows: {{ to: {{ enabled: true, scaleFactor: 0.42 }} }}, color: {{ color: "#2A3050",
       highlight: "#6B7BFF", hover: "#6B7BFF" }}, smooth: {{ type: "continuous" }},
       scaling: {{ min: 0.4, max: 4 }} }},
     interaction: {{ hover: true, tooltipDelay: 90 }}
+  }});
+  network.once("stabilizationIterationsDone", function () {{
+    network.setOptions({{ physics: false }});
+    network.fit({{ animation: false }});
   }});
   var flaggedIds = data.nodes.filter(function (n) {{ return n.flagged; }}).map(function (n) {{ return n.id; }});
   var keep = {{}};
@@ -768,7 +775,7 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
     edges.update(data.edges.map(function (e, i) {{
       return {{ id: "e" + i, hidden: on && !(keep[e.from] && keep[e.to]) }};
     }}));
-    network.fit();
+    network.fit({{ nodes: on ? Object.keys(keep) : [], animation: {{ duration: 400 }} }});
   }});
 }})();
 </script>
