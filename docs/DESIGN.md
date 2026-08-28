@@ -45,6 +45,12 @@ render the result so a fraud investigator can act on it.
 | `tna/report.py` | Prerendered `index.html`, `findings.json`, `network.png` |
 | `tna/cli.py` | `tna generate`, `tna analyze --input <csv>` |
 
+The interfaces between these modules — `Signal`, `AnalysisResult`, `render_report` — are fixed
+before the modules behind them. That ordering is deliberate. Threshold tuning, report rendering,
+sensitivity analysis and the adversarial dataset are four largely independent pieces of work that
+share no reasoning with each other, and settling the contracts up front is what lets them proceed in
+parallel without colliding in the same files or waiting on one another.
+
 ### Planted patterns in the test data
 
 | Pattern | Shape | Why |
@@ -77,16 +83,22 @@ contribution of each signal is visible in the output.
 
 ## Not building now
 
-Split into two categories, because the reasons are different.
+Inside a two-hour budget the binding constraint is not how fast code can be written. It is deciding
+what *not* to build, and noticing when a plausible-looking result is subtly wrong — generating a
+detector is quick, while noticing that it flags your best customer takes domain judgement. What
+follows is that decision, split into two categories, because the reasons are different.
 
 ### Rejected on merit — would not add even with more time
 
 | Thing | Why not |
 |---|---|
 | Hosted database (Supabase, Postgres) | The dataset is ~200 KB. A hosted DB is a second failure point on the path that decides whether the submission is gradeable at all, for zero analytical gain. DuckDB or plain CSV is a real database answer. |
-| Streamlit / client-rendered SPA | Content only exists after a WebSocket handshake and client render, so an automated fetch of the URL returns an empty shell. Wrong architecture for a deliverable that gets fetched and read. |
+| Streamlit / client-rendered SPA | The obvious answer to "interactive data tool" and the wrong one here. Content only exists after a WebSocket handshake and a client render, so an automated fetch of the URL returns an empty shell — and this page is fetched and read by tooling before a human ever opens it. Who consumes the artefact decides the architecture. |
 | FX normalisation across NGN/KES/ZAR/GHS | Would require inventing exchange rates. Analysing per currency is the honest answer. |
 | Graph database (Neo4j) | NetworkX handles ~100 nodes in milliseconds. Operational cost with no benefit at this scale. |
+| An anomaly-detection model as the ranker | The reflex answer to "rank accounts by fraud likelihood" is Isolation Forest or DBSCAN over the graph features, and it is worse here. An investigator has to justify freezing a real person's account to a compliance officer and sometimes to the customer; "the model gave you 0.87" is not a justification. A weighted sum of named signals keeps the contribution of every piece of evidence visible and the weights arguable by the fraud team that owns them. At ~140 accounts of synthetic traffic a fitted score would also be learning the generator rather than fraud. It survives below only as a *benchmark against* the heuristic, never as a replacement. |
+| Degree as a primary suspicion signal | High degree is the easiest signal to reach for and it flags the platform's busiest honest seller. The discriminator is the conduit test in `detect_fan_in_fan_out`: does the money *leave* again? An account that receives from many people and keeps the value is a popular merchant; one that forwards nearly all of it through a handful of larger transfers is a collector. The legitimate hub is planted in the test data to make the difference demonstrable rather than asserted. |
+| Topology as evidence on its own | Cycle detection over a marketplace graph finds cycles everywhere — A buys from B, B buys from C, C happens to buy from A across three unrelated weeks — and coincidental loops swamp real ones by orders of magnitude. A cycle counts only if it closes quickly *and* preserves its value at each hop, which is why `graph.aggregate` carries `first_seen` and `last_seen` per edge: the detector has to ask temporal questions of a structural object. |
 
 ### Deferred — build if time remains, in this order
 
@@ -96,9 +108,16 @@ Two items on this list were built before the deadline and are struck through:
    report renders the precision/recall/F1 curve. It justifies `FLAG_THRESHOLD = 40` two independent
    ways: 40 is the F1 maximum of the swept grid, and it sits at the top edge of the band within
    which recall stays at 1.0.
-2. ~~**Adversarial hard negatives**~~ — **done**, and not originally on this list. Seventeen
-   innocent-but-suspicious-looking accounts were planted specifically to attack each detector. They
-   dropped precision from 1.000 to 0.821 and surfaced seven false positives worth analysing.
+2. ~~**Adversarial hard negatives**~~ — **done**, and not originally on this list. The first
+   validated run returned precision and recall of 1.000, and the temptation is to ship that. It
+   proved almost nothing: every innocent account in the dataset was *trivially* innocent, so the
+   detector had never been shown a hard case. Seventeen innocent-but-suspicious-looking accounts
+   were therefore planted specifically to attack each detector — a bursty ticket seller, a family
+   sharing a tablet, a shop settling between two accounts it owns, a flat-share splitting rent, a
+   referral cohort onboarded the same week. They dropped precision from 1.000 to 0.821 and surfaced
+   seven false positives, which are the most informative output in the project. Making your own
+   headline numbers worse is the point: a detector that has not been tested against hard negatives
+   has not been tested.
 
 Still deferred, in priority order:
 
@@ -127,3 +146,25 @@ Failing test first, per the repo's TDD rule. The ones that carry weight: a hand-
 cycle is detected; a star topology is not reported as circular; the legitimate hub stays below the
 flagging threshold; velocity windows are correct at boundaries; scores are monotonic in signal
 strength and always carry reasons.
+
+Rolling-window velocity arithmetic is the case that most justifies the discipline. Being right at
+the window boundary is exactly the kind of detail that goes subtly wrong when written at speed, and
+exactly the kind of detail a test pins down cheaply.
+
+## Verification
+
+Every claim made in the report, or in this document, is checked mechanically wherever a check is
+possible.
+
+- **The numbers are computed, not written.** Precision, recall and F1 come from `tna/evaluate.py`
+  measured against planted ground truth, and are asserted in `tests/test_pipeline.py`. No figure in
+  the report is typed by hand into prose.
+- **The false-positive claim is a test.** "The legitimate hub is not flagged" is an assertion in the
+  suite rather than a sentence in a document, as are the scores of each hard-negative population.
+- **The deployment is checked from outside.** The public URL is fetched with plain `curl` from an
+  unauthenticated session, because a report behind an auth wall is worth nothing to whoever needs to
+  read it, regardless of its contents.
+- **The weights are the one human judgement.** They encode a view about which structures imply
+  coordination and which are merely circumstantial. The code records and applies that view; it does
+  not derive it, and no test can validate it. That is precisely why the weights are documented in
+  full and left arguable rather than fitted.

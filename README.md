@@ -488,7 +488,5 @@ Streamlit, FX normalisation, Neo4j) and why.
 ## Further reading
 
 - [`docs/DESIGN.md`](docs/DESIGN.md) — the design written before implementation: the problem as
-  understood, what was optimised for, assumptions, module responsibilities, and everything not built
-  with the reason for each.
-- [`docs/AI_WORKFLOW.md`](docs/AI_WORKFLOW.md) — an account of where AI did the work, where it had
-  to be overruled, and what was verified rather than trusted.
+  understood, what was optimised for, assumptions, module responsibilities, everything not built
+  with the reason for each, and how the claims made here are verified.
