@@ -490,3 +490,11 @@ Streamlit, FX normalisation, Neo4j) and why.
 - [`docs/DESIGN.md`](docs/DESIGN.md) — the design written before implementation: the problem as
   understood, what was optimised for, assumptions, module responsibilities, everything not built
   with the reason for each, and how the claims made here are verified.
+
+The most useful part of that document for anyone reviewing the engineering rather than the fraud
+logic is the **rejected-on-merit table**. Building fast is easy to demonstrate and largely
+uninteresting; what decided the shape of this tool was rejecting the answers that come first and are
+wrong — an anomaly model that cannot justify a freeze, a client-rendered app for a page that gets
+fetched and read before a human opens it, degree as a suspicion signal when it flags your best
+customer, and topology treated as evidence when coincidental cycles outnumber real ones by orders of
+magnitude. Each row records the alternative, the reason it was rejected, and what was built instead.
