@@ -5,9 +5,10 @@ did, and where I had to overrule it.
 
 ## The setup
 
-Claude Code (Opus) as the driver, with two background subagents running in parallel for the two
+Claude Code (Opus) as the driver, with four background subagents used across the build for the
 jobs that are self-contained and produce a lot of noisy output: tuning the detector thresholds
-against the test suite, and writing the HTML report renderer. The main session kept the design, the
+against the test suite, writing the HTML report renderer, adding the threshold sensitivity
+analysis, and planting the adversarial hard negatives. The main session kept the design, the
 contracts between modules, and the decisions.
 
 That split was deliberate. Threshold tuning is an iterate-until-green loop that generates hundreds
@@ -51,6 +52,15 @@ artefact, which is not something the default suggestion accounted for.
 easiest signal to reach for. The legitimate hub in the test data exists specifically to make that
 failure visible, and the conduit test in `detect_fan_in_fan_out` — does the money *leave* again? —
 is what separates a popular merchant from a mule.
+
+**It was happy to stop at a perfect score.** The first validated run returned precision and recall
+of 1.000 and the natural instinct is to ship that. It proved almost nothing: every innocent account
+in the dataset was *trivially* innocent, so the detector had never been shown a hard case. Planting
+seventeen adversarial accounts — a bursty ticket seller, a family sharing a tablet, a shop settling
+between two accounts it owns, a flat-share splitting rent, a referral cohort onboarded the same week
+— dropped precision to 0.821 and produced seven false positives. Those seven are the most
+informative output in the whole submission. Deliberately making your own results worse is not a
+move an agent optimising for a green test suite proposes on its own.
 
 **It initially treated topology as evidence on its own.** Cycle detection over a marketplace graph
 finds cycles everywhere: A buys from B, B buys from C, C happens to buy from A across three

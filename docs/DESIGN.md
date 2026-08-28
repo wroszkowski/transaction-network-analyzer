@@ -90,19 +90,36 @@ Split into two categories, because the reasons are different.
 
 ### Deferred — build if time remains, in this order
 
-1. **Interactive canvas polish** — click-to-focus a node's neighbourhood, account search box.
-   Cheap, and the largest visible improvement per minute spent.
-2. **Stretch B, anomaly model as a benchmark** — Isolation Forest or DBSCAN over the same graph
+Two items on this list were built before the deadline and are struck through:
+
+1. ~~**Threshold sensitivity analysis**~~ — **done.** `tna/sensitivity.py` sweeps the cut-off and the
+   report renders the precision/recall/F1 curve. It justifies `FLAG_THRESHOLD = 40` two independent
+   ways: 40 is the F1 maximum of the swept grid, and it sits at the top edge of the band within
+   which recall stays at 1.0.
+2. ~~**Adversarial hard negatives**~~ — **done**, and not originally on this list. Seventeen
+   innocent-but-suspicious-looking accounts were planted specifically to attack each detector. They
+   dropped precision from 1.000 to 0.821 and surfaced seven false positives worth analysing.
+
+Still deferred, in priority order:
+
+3. **Structural signals should not be sufficient alone** — the referral-cohort false positives all
+   cleared the threshold on structure only (tight component + synchronised onboarding + a weak
+   loop). Requiring at least one value- or volume-based signal alongside them would clear that
+   cohort without weakening ring detection. Identified with too little time left to re-validate
+   properly, and rushing a scoring change is how you trade seven visible false positives for an
+   invisible false negative.
+4. **Referral attribution as a feature** — the platform knows which accounts arrived through a
+   marketing campaign. That single attribute would resolve the largest false-positive cluster,
+   which is a data-availability fix rather than an algorithmic one.
+5. **Interactive canvas polish** — click-to-focus a node's neighbourhood, account search box.
+6. **Stretch B, anomaly model as a benchmark** — Isolation Forest or DBSCAN over the same graph
    features, reported *alongside* the heuristic rather than replacing it. Framed as a comparison it
    stops conflicting with the explainability goal and becomes evidence the heuristic was validated
    against an alternative.
-3. **Temporal snapshots** — the network rendered at three points in time as small multiples, making
+7. **Temporal snapshots** — the network rendered at three points in time as small multiples, making
    ring formation visible rather than described.
-4. **Threshold sensitivity analysis** — how precision and recall move as the flagging cut-off
-   sweeps, which is the honest way to justify the chosen threshold.
-5. **FastAPI `/api/analyze` upload endpoint** — served alongside the static report so a reviewer
+8. **FastAPI `/api/analyze` upload endpoint** — served alongside the static report so a reviewer
    can POST their own CSV. Deferred because it puts a serverless cold start on the graded URL.
-6. **Screenshot walkthrough** — optional deliverable, pure presentation.
 
 ## Testing
 
