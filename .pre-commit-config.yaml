@@ -1,0 +1,47 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [ "--maxkb=2000" ]
+      - id: check-toml
+      - id: check-json
+      - id: pretty-format-json
+        args: [ "--autofix", "--indent=4" ]
+      - id: debug-statements
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+
+      - id: hook-ruff-check
+        name: hook-ruff-check
+        entry: just hook-ruff-check
+        language: system
+        pass_filenames: false
+        types: [ python ]
+
+      - id: hook-ruff-format
+        name: hook-ruff-format
+        entry: just hook-ruff-format
+        language: system
+        pass_filenames: false
+        types: [ python ]
+
+      - id: hook-ty
+        name: hook-ty
+        entry: just hook-ty
+        language: system
+        pass_filenames: false
+        types: [ python ]
+
+      - id: hook-unit-test
+        name: hook-unit-test
+        entry: just hook-unit-test
+        types: [ python ]
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -1,0 +1,15 @@
+{
+    "hooks": {
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "command": "just all-hooks",
+                        "timeout": 300,
+                        "type": "command"
+                    }
+                ]
+            }
+        ]
+    }
+}
