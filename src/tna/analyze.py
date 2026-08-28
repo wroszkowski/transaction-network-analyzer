@@ -34,7 +34,7 @@ class AnalysisResult:
     signals: list[Signal]
     scores: pd.DataFrame
     flagged: list[str]
-    evaluation: dict[str, object] | None
+    evaluation: evaluate_module.Evaluation | None
 
 
 def analyze(

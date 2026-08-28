@@ -40,8 +40,8 @@ class _Builder:
     """Accumulates rows while keeping account profiles and labels consistent."""
 
     rng: random.Random
-    rows: list[dict] = field(default_factory=list)
-    profiles: dict[str, dict] = field(default_factory=dict)
+    rows: list[dict[str, object]] = field(default_factory=list)
+    profiles: dict[str, dict[str, object]] = field(default_factory=dict)
     labels: dict[str, str] = field(default_factory=dict)
 
     def account(self, account_id: str, created_at: pd.Timestamp, currency: str, label: str | None = None) -> str:
@@ -84,7 +84,9 @@ class _Builder:
         )
 
     def when(self, day: float) -> pd.Timestamp:
-        return START + pd.Timedelta(days=day)
+        moment = START + pd.Timedelta(days=day)
+        assert isinstance(moment, pd.Timestamp)  # a finite offset from a real timestamp is never NaT
+        return moment
 
 
 def generate(seed: int = 42) -> Dataset:
@@ -199,7 +201,9 @@ def _ring_b_smurfing(builder: _Builder) -> None:
 
     base = 18.0
     for i, feeder in enumerate(feeders):
-        builder.pay(feeder, collector, rng.uniform(45_000, 60_000), builder.when(base + i * 0.002), device=devices[i % 3])
+        builder.pay(
+            feeder, collector, rng.uniform(45_000, 60_000), builder.when(base + i * 0.002), device=devices[i % 3]
+        )
 
     # Layering: value returns to half the feeders and is sent in again, closing short loops.
     for feeder in feeders[:6]:

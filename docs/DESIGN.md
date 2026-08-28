@@ -51,7 +51,7 @@ render the result so a fraud investigator can act on it.
 |---|---|---|
 | Background | ~90 accounts, random P2P over 30 days | Noise floor the detector must not flag |
 | Ring A | 10 accounts, closed money loop, 2 shared devices, onboarded in 3 days | Circular flow + shared identifiers |
-| Ring B | 12 feeders → 1 collector → few large outs | Smurfing / fan-in-fan-out |
+| Ring B | 12 feeders → 1 collector → 2 exit accounts (15 in total) | Smurfing / fan-in-fan-out |
 | Ring C | 1 victim drained to 6 accounts in 10 minutes | Account takeover burst velocity |
 | Legitimate hub | Popular seller, 35+ transactions, high degree, **not fraud** | False-positive trap |
 
@@ -59,7 +59,12 @@ render the result so a fraud investigator can act on it.
 
 In/out degree, distinct counterparties, total in, total out, net flow, pass-through ratio (share of
 inbound value that leaves again — the money-mule signal), peak transactions in any rolling one-hour
-window, connected-component id and size, and account age at first transaction.
+window, and connected-component id and size.
+
+*Revised during the build:* account age at first transaction was dropped as a per-account metric.
+Account age turned out to matter as a property of a *cluster* rather than an individual — one new
+account is unremarkable, fifteen created the same week and transacting only with each other is not —
+so the signal lives in `detect_synchronised_onboarding` instead.
 
 ### Detection signals
 

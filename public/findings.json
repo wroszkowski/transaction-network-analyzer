@@ -1,0 +1,1120 @@
+{
+    "clusters": [
+        {
+            "component_id": 2,
+            "component_members": [
+                "SMR_COLLECTOR",
+                "SMR_EXIT_0",
+                "SMR_EXIT_1",
+                "SMR_F00",
+                "SMR_F01",
+                "SMR_F02",
+                "SMR_F03",
+                "SMR_F04",
+                "SMR_F05",
+                "SMR_F06",
+                "SMR_F07",
+                "SMR_F08",
+                "SMR_F09",
+                "SMR_F10",
+                "SMR_F11"
+            ],
+            "component_size": 15,
+            "flagged_accounts": [
+                "SMR_COLLECTOR",
+                "SMR_F00",
+                "SMR_F01",
+                "SMR_F02",
+                "SMR_F03",
+                "SMR_F04",
+                "SMR_F05",
+                "SMR_EXIT_0",
+                "SMR_EXIT_1",
+                "SMR_F06",
+                "SMR_F07",
+                "SMR_F08",
+                "SMR_F09",
+                "SMR_F10",
+                "SMR_F11"
+            ],
+            "internal_value": {
+                "KES": 1276163.96
+            },
+            "mean_risk_score": 53.9,
+            "signals": {
+                "circular_flow": 7,
+                "shared_identifiers": 15,
+                "synchronised_onboarding": 15,
+                "tight_component": 15,
+                "velocity_burst": 1
+            },
+            "top_risk_score": 81.6
+        },
+        {
+            "component_id": 1,
+            "component_members": [
+                "RNG_A_00",
+                "RNG_A_01",
+                "RNG_A_02",
+                "RNG_A_03",
+                "RNG_A_04",
+                "RNG_A_05",
+                "RNG_A_06",
+                "RNG_A_07",
+                "RNG_A_08",
+                "RNG_A_09"
+            ],
+            "component_size": 10,
+            "flagged_accounts": [
+                "RNG_A_00",
+                "RNG_A_02",
+                "RNG_A_04",
+                "RNG_A_06",
+                "RNG_A_08",
+                "RNG_A_01",
+                "RNG_A_03",
+                "RNG_A_05",
+                "RNG_A_07",
+                "RNG_A_09"
+            ],
+            "internal_value": {
+                "NGN": 10534080.03
+            },
+            "mean_risk_score": 74.8,
+            "signals": {
+                "circular_flow": 10,
+                "shared_identifiers": 10,
+                "synchronised_onboarding": 10,
+                "tight_component": 10
+            },
+            "top_risk_score": 76.5
+        },
+        {
+            "component_id": 3,
+            "component_members": [
+                "ATO_MULE_0",
+                "ATO_MULE_1",
+                "ATO_MULE_2",
+                "ATO_MULE_3",
+                "ATO_MULE_4",
+                "ATO_MULE_5",
+                "ATO_VICTIM"
+            ],
+            "component_size": 7,
+            "flagged_accounts": [
+                "ATO_MULE_0",
+                "ATO_MULE_1",
+                "ATO_MULE_2",
+                "ATO_MULE_3",
+                "ATO_MULE_4",
+                "ATO_MULE_5",
+                "ATO_VICTIM"
+            ],
+            "internal_value": {
+                "ZAR": 434712.66
+            },
+            "mean_risk_score": 62.2,
+            "signals": {
+                "circular_flow": 6,
+                "shared_identifiers": 7,
+                "tight_component": 7,
+                "velocity_burst": 1
+            },
+            "top_risk_score": 65.1
+        }
+    ],
+    "evaluation": {
+        "f1": 1.0,
+        "false_negatives": [],
+        "false_positives": [],
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positives": [
+            "ATO_MULE_0",
+            "ATO_MULE_1",
+            "ATO_MULE_2",
+            "ATO_MULE_3",
+            "ATO_MULE_4",
+            "ATO_MULE_5",
+            "ATO_VICTIM",
+            "RNG_A_00",
+            "RNG_A_01",
+            "RNG_A_02",
+            "RNG_A_03",
+            "RNG_A_04",
+            "RNG_A_05",
+            "RNG_A_06",
+            "RNG_A_07",
+            "RNG_A_08",
+            "RNG_A_09",
+            "SMR_COLLECTOR",
+            "SMR_EXIT_0",
+            "SMR_EXIT_1",
+            "SMR_F00",
+            "SMR_F01",
+            "SMR_F02",
+            "SMR_F03",
+            "SMR_F04",
+            "SMR_F05",
+            "SMR_F06",
+            "SMR_F07",
+            "SMR_F08",
+            "SMR_F09",
+            "SMR_F10",
+            "SMR_F11"
+        ]
+    },
+    "findings": [
+        {
+            "account_id": "SMR_COLLECTOR",
+            "band": "critical",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 14,
+                "in_degree": 20,
+                "net_flow": 793797.12,
+                "out_degree": 6,
+                "pass_through_ratio": 0.153156,
+                "peak_velocity": 12,
+                "total_in": 937359.33,
+                "total_out": 143562.21
+            },
+            "rank": 1,
+            "reasons": [
+                "sits on a 2-account loop SMR_F03 -> SMR_COLLECTOR -> SMR_F03 carrying 99,374 in total, closed within 0.19 day(s) with 36% of the value preserved at every hop",
+                "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties",
+                "12 transactions inside a single hour"
+            ],
+            "risk_score": 81.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component",
+                "velocity_burst"
+            ]
+        },
+        {
+            "account_id": "RNG_A_00",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 5,
+                "in_degree": 3,
+                "net_flow": -161649.01,
+                "out_degree": 3,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 2,
+                "total_in": 1335871.28,
+                "total_out": 1497520.29
+            },
+            "rank": 2,
+            "reasons": [
+                "sits on a 5-account loop RNG_A_02 -> RNG_A_00 -> RNG_A_08 -> RNG_A_06 -> RNG_A_04 -> RNG_A_02 carrying 2,763,842 in total, closed within 1.60 day(s) with 53% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 76.5,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_02",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 4,
+                "in_degree": 3,
+                "net_flow": 97212.07000000007,
+                "out_degree": 3,
+                "pass_through_ratio": 0.949757,
+                "peak_velocity": 2,
+                "total_in": 1934850.58,
+                "total_out": 1837638.51
+            },
+            "rank": 3,
+            "reasons": [
+                "sits on a 5-account loop RNG_A_02 -> RNG_A_00 -> RNG_A_08 -> RNG_A_06 -> RNG_A_04 -> RNG_A_02 carrying 2,763,842 in total, closed within 1.60 day(s) with 53% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 76.5,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_04",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 4,
+                "in_degree": 2,
+                "net_flow": -6026.0,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 2,
+                "total_in": 1109043.22,
+                "total_out": 1115069.22
+            },
+            "rank": 4,
+            "reasons": [
+                "sits on a 5-account loop RNG_A_02 -> RNG_A_00 -> RNG_A_08 -> RNG_A_06 -> RNG_A_04 -> RNG_A_02 carrying 2,763,842 in total, closed within 1.60 day(s) with 53% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 76.5,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_06",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 5,
+                "in_degree": 2,
+                "net_flow": -598924.4300000002,
+                "out_degree": 4,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 2,
+                "total_in": 952521.23,
+                "total_out": 1551445.6600000001
+            },
+            "rank": 5,
+            "reasons": [
+                "sits on a 5-account loop RNG_A_02 -> RNG_A_00 -> RNG_A_08 -> RNG_A_06 -> RNG_A_04 -> RNG_A_02 carrying 2,763,842 in total, closed within 1.60 day(s) with 53% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 76.5,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_08",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 4,
+                "in_degree": 3,
+                "net_flow": 102100.95999999996,
+                "out_degree": 3,
+                "pass_through_ratio": 0.923058,
+                "peak_velocity": 2,
+                "total_in": 1326990.71,
+                "total_out": 1224889.75
+            },
+            "rank": 6,
+            "reasons": [
+                "sits on a 5-account loop RNG_A_02 -> RNG_A_00 -> RNG_A_08 -> RNG_A_06 -> RNG_A_04 -> RNG_A_02 carrying 2,763,842 in total, closed within 1.60 day(s) with 53% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 76.5,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_01",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 2,
+                "in_degree": 1,
+                "net_flow": -28533.780000000028,
+                "out_degree": 1,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 2,
+                "total_in": 720029.15,
+                "total_out": 748562.93
+            },
+            "rank": 7,
+            "reasons": [
+                "sits on a 3-account loop RNG_A_01 -> RNG_A_02 -> RNG_A_00 -> RNG_A_01 carrying 2,199,998 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 73.0,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_03",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 2,
+                "in_degree": 2,
+                "net_flow": -88891.5,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 2,
+                "total_in": 1106232.7,
+                "total_out": 1195124.2
+            },
+            "rank": 8,
+            "reasons": [
+                "sits on a 3-account loop RNG_A_02 -> RNG_A_03 -> RNG_A_04 -> RNG_A_02 carrying 2,518,794 in total, closed within 1.96 day(s) with 63% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 73.0,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_05",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 2,
+                "in_degree": 1,
+                "net_flow": 3429.7200000000303,
+                "out_degree": 1,
+                "pass_through_ratio": 0.9917,
+                "peak_velocity": 2,
+                "total_in": 413206.88,
+                "total_out": 409777.16
+            },
+            "rank": 9,
+            "reasons": [
+                "sits on a 3-account loop RNG_A_06 -> RNG_A_04 -> RNG_A_05 -> RNG_A_06 carrying 1,221,328 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 73.0,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_07",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 2,
+                "in_degree": 1,
+                "net_flow": 4278.0800000000745,
+                "out_degree": 1,
+                "pass_through_ratio": 0.992431,
+                "peak_velocity": 2,
+                "total_in": 565182.52,
+                "total_out": 560904.44
+            },
+            "rank": 10,
+            "reasons": [
+                "sits on a 3-account loop RNG_A_07 -> RNG_A_08 -> RNG_A_06 -> RNG_A_07 carrying 1,668,831 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 73.0,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "RNG_A_09",
+            "band": "critical",
+            "component_id": 1,
+            "metrics": {
+                "component_size": 10,
+                "distinct_counterparties": 2,
+                "in_degree": 3,
+                "net_flow": 677003.89,
+                "out_degree": 1,
+                "pass_through_ratio": 0.367376,
+                "peak_velocity": 2,
+                "total_in": 1070151.76,
+                "total_out": 393147.87
+            },
+            "rank": 11,
+            "reasons": [
+                "sits on a 3-account loop RNG_A_09 -> RNG_A_00 -> RNG_A_08 -> RNG_A_09 carrying 1,464,779 in total, closed within 1.95 day(s) with 57% of the value preserved at every hop",
+                "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
+                "all 10 accounts in cluster 1 were created within 2 day(s) of each other",
+                "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 73.0,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F00",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -51824.71999999999,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 23575.27,
+                "total_out": 75399.98999999999
+            },
+            "rank": 12,
+            "reasons": [
+                "sits on a 2-account loop SMR_COLLECTOR -> SMR_F00 -> SMR_COLLECTOR carrying 98,975 in total, closed within 0.20 day(s) with 31% of the value preserved at every hop",
+                "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F01",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -58662.64,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 24007.78,
+                "total_out": 82670.42
+            },
+            "rank": 13,
+            "reasons": [
+                "sits on a 2-account loop SMR_COLLECTOR -> SMR_F01 -> SMR_COLLECTOR carrying 106,678 in total, closed within 0.20 day(s) with 29% of the value preserved at every hop",
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F02",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -58699.090000000004,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 21130.57,
+                "total_out": 79829.66
+            },
+            "rank": 14,
+            "reasons": [
+                "sits on a 2-account loop SMR_COLLECTOR -> SMR_F02 -> SMR_COLLECTOR carrying 100,960 in total, closed within 0.20 day(s) with 26% of the value preserved at every hop",
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F03",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -47147.84,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 26113.23,
+                "total_out": 73261.06999999999
+            },
+            "rank": 15,
+            "reasons": [
+                "sits on a 2-account loop SMR_F03 -> SMR_COLLECTOR -> SMR_F03 carrying 99,374 in total, closed within 0.19 day(s) with 36% of the value preserved at every hop",
+                "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F04",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -50039.78,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 24406.88,
+                "total_out": 74446.66
+            },
+            "rank": 16,
+            "reasons": [
+                "sits on a 2-account loop SMR_COLLECTOR -> SMR_F04 -> SMR_COLLECTOR carrying 98,854 in total, closed within 0.19 day(s) with 33% of the value preserved at every hop",
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F05",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 1,
+                "net_flow": -46349.7,
+                "out_degree": 2,
+                "pass_through_ratio": 1.0,
+                "peak_velocity": 1,
+                "total_in": 24328.48,
+                "total_out": 70678.18
+            },
+            "rank": 17,
+            "reasons": [
+                "sits on a 2-account loop SMR_COLLECTOR -> SMR_F05 -> SMR_COLLECTOR carrying 95,007 in total, closed within 0.19 day(s) with 34% of the value preserved at every hop",
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 66.6,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_0",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 3,
+                "in_degree": 3,
+                "net_flow": 64759.869999999995,
+                "out_degree": 1,
+                "pass_through_ratio": 0.272999,
+                "peak_velocity": 2,
+                "total_in": 89078.14,
+                "total_out": 24318.27
+            },
+            "rank": 18,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_1",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 3,
+                "in_degree": 3,
+                "net_flow": 78925.82,
+                "out_degree": 1,
+                "pass_through_ratio": 0.112892,
+                "peak_velocity": 2,
+                "total_in": 88969.76000000001,
+                "total_out": 10043.94
+            },
+            "rank": 19,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_2",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 4,
+                "in_degree": 3,
+                "net_flow": 34813.999999999985,
+                "out_degree": 2,
+                "pass_through_ratio": 0.565981,
+                "peak_velocity": 2,
+                "total_in": 80213.15999999999,
+                "total_out": 45399.16
+            },
+            "rank": 20,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_3",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 4,
+                "in_degree": 3,
+                "net_flow": 54224.95000000001,
+                "out_degree": 1,
+                "pass_through_ratio": 0.191082,
+                "peak_velocity": 2,
+                "total_in": 67033.93000000001,
+                "total_out": 12808.98
+            },
+            "rank": 21,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_4",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 3,
+                "in_degree": 2,
+                "net_flow": 29350.82,
+                "out_degree": 1,
+                "pass_through_ratio": 0.430831,
+                "peak_velocity": 2,
+                "total_in": 51567.86,
+                "total_out": 22217.04
+            },
+            "rank": 22,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_MULE_5",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 3,
+                "in_degree": 2,
+                "net_flow": 43538.02,
+                "out_degree": 1,
+                "pass_through_ratio": 0.247396,
+                "peak_velocity": 2,
+                "total_in": 57849.81,
+                "total_out": 14311.79
+            },
+            "rank": 23,
+            "reasons": [
+                "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 65.1,
+            "signals": [
+                "circular_flow",
+                "shared_identifiers",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "ATO_VICTIM",
+            "band": "high",
+            "component_id": 3,
+            "metrics": {
+                "component_size": 7,
+                "distinct_counterparties": 6,
+                "in_degree": 0,
+                "net_flow": -305613.48,
+                "out_degree": 9,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 9,
+                "total_in": 0.0,
+                "total_out": 305613.48
+            },
+            "rank": 24,
+            "reasons": [
+                "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
+                "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties",
+                "9 transactions inside a single hour"
+            ],
+            "risk_score": 44.8,
+            "signals": [
+                "shared_identifiers",
+                "tight_component",
+                "velocity_burst"
+            ]
+        },
+        {
+            "account_id": "SMR_EXIT_0",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 2,
+                "in_degree": 1,
+                "net_flow": 830.1199999999953,
+                "out_degree": 1,
+                "pass_through_ratio": 0.989684,
+                "peak_velocity": 1,
+                "total_in": 80465.79,
+                "total_out": 79635.67
+            },
+            "rank": 25,
+            "reasons": [
+                "shares device dev_shared_b3 with 7 other account(s): SMR_EXIT_0, SMR_EXIT_1, SMR_F02, SMR_F05, SMR_F06, SMR_F07, SMR_F08, SMR_F11",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_EXIT_1",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 2,
+                "in_degree": 1,
+                "net_flow": 22756.809999999998,
+                "out_degree": 1,
+                "pass_through_ratio": 0.80173,
+                "peak_velocity": 1,
+                "total_in": 114776.63,
+                "total_out": 92019.82
+            },
+            "rank": 26,
+            "reasons": [
+                "shares device dev_shared_b3 with 7 other account(s): SMR_EXIT_0, SMR_EXIT_1, SMR_F02, SMR_F05, SMR_F06, SMR_F07, SMR_F08, SMR_F11",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F06",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 2,
+                "in_degree": 0,
+                "net_flow": -127702.95999999999,
+                "out_degree": 2,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 127702.95999999999
+            },
+            "rank": 27,
+            "reasons": [
+                "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F07",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 2,
+                "in_degree": 0,
+                "net_flow": -173348.32,
+                "out_degree": 2,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 173348.32
+            },
+            "rank": 28,
+            "reasons": [
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F08",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 0,
+                "net_flow": -48961.88,
+                "out_degree": 1,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 48961.88
+            },
+            "rank": 29,
+            "reasons": [
+                "shares device dev_shared_b3 with 7 other account(s): SMR_EXIT_0, SMR_EXIT_1, SMR_F02, SMR_F05, SMR_F06, SMR_F07, SMR_F08, SMR_F11",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F09",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 0,
+                "net_flow": -58112.11,
+                "out_degree": 1,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 58112.11
+            },
+            "rank": 30,
+            "reasons": [
+                "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F10",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 0,
+                "net_flow": -51389.93,
+                "out_degree": 1,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 51389.93
+            },
+            "rank": 31,
+            "reasons": [
+                "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        },
+        {
+            "account_id": "SMR_F11",
+            "band": "high",
+            "component_id": 2,
+            "metrics": {
+                "component_size": 15,
+                "distinct_counterparties": 1,
+                "in_degree": 0,
+                "net_flow": -45145.08,
+                "out_degree": 1,
+                "pass_through_ratio": 0.0,
+                "peak_velocity": 1,
+                "total_in": 0.0,
+                "total_out": 45145.08
+            },
+            "rank": 32,
+            "reasons": [
+                "shares device dev_shared_b3 with 7 other account(s): SMR_EXIT_0, SMR_EXIT_1, SMR_F02, SMR_F05, SMR_F06, SMR_F07, SMR_F08, SMR_F11",
+                "all 15 accounts in cluster 2 were created within 1 day(s) of each other",
+                "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
+            ],
+            "risk_score": 40.9,
+            "signals": [
+                "shared_identifiers",
+                "synchronised_onboarding",
+                "tight_component"
+            ]
+        }
+    ],
+    "generated_at": "2026-08-28 09:06 UTC",
+    "method": {
+        "flag_threshold": 40.0,
+        "weights": {
+            "circular_flow": 35.0,
+            "fan_in_fan_out": 25.0,
+            "shared_identifiers": 15.0,
+            "synchronised_onboarding": 15.0,
+            "tight_component": 25.0,
+            "velocity_burst": 20.0
+        }
+    },
+    "summary": {
+        "accounts": 123,
+        "accounts_flagged": 32,
+        "signals_fired": 153,
+        "suspicious_clusters": 3,
+        "transactions": 441
+    }
+}

@@ -41,9 +41,7 @@ def compute_metrics(
     frame["peak_velocity"] = _peak_velocity(transactions, accounts, window_minutes)
 
     components = {
-        account: index
-        for index, component in enumerate(nx.weakly_connected_components(graph))
-        for account in component
+        account: index for index, component in enumerate(nx.weakly_connected_components(graph)) for account in component
     }
     sizes = pd.Series(components).value_counts()
     frame["component_id"] = [components[account] for account in accounts]
@@ -54,7 +52,7 @@ def compute_metrics(
 def _pass_through_ratio(frame: pd.DataFrame) -> pd.Series:
     """How much of what came in went straight back out. 1.0 means a pure conduit."""
     ratio = frame["total_out"] / frame["total_in"].where(frame["total_in"] > 0)
-    return ratio.fillna(0.0).clip(upper=1.0).round(6)
+    return pd.Series(ratio.fillna(0.0).clip(upper=1.0).round(6), index=frame.index)
 
 
 def _distinct_counterparties(graph: nx.MultiDiGraph, accounts: list[str]) -> list[int]:

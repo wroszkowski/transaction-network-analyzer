@@ -228,4 +228,8 @@ logs/
 worktrees/
 .claude/settings.local.json
 .mcp.json
-.vercel
+.vercel/
+
+# Stray artefacts from browser-automation tooling
+page.png
+.playwright-mcp/

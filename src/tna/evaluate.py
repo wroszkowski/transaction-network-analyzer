@@ -6,9 +6,21 @@ says how much of an investigator's time we would have wasted.
 """
 
 from collections.abc import Iterable, Mapping
+from typing import TypedDict
 
 
-def evaluate(flagged: Iterable[str], truth: Mapping[str, str]) -> dict:
+class Evaluation(TypedDict):
+    """The detector's report card. Typed so callers can read the numbers without casting."""
+
+    precision: float
+    recall: float
+    f1: float
+    true_positives: list[str]
+    false_positives: list[str]
+    false_negatives: list[str]
+
+
+def evaluate(flagged: Iterable[str], truth: Mapping[str, str]) -> Evaluation:
     """Compare flagged accounts against labelled fraudulent accounts."""
     flagged_set = set(flagged)
     fraudulent = set(truth)

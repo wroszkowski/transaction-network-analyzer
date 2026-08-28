@@ -1,9 +1,13 @@
 """Shared fixtures: tiny hand-built transaction sets with known topology."""
 
-from collections.abc import Sequence
+import os
 
-import pandas as pd
-import pytest
+os.environ.setdefault("MPLBACKEND", "Agg")  # headless rendering; must precede any matplotlib import
+
+from collections.abc import Sequence  # noqa: E402
+
+import pandas as pd  # noqa: E402
+import pytest  # noqa: E402
 
 COLUMNS = [
     "transaction_id",
