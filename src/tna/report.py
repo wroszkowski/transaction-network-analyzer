@@ -39,12 +39,13 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 LAYOUT_SEED = 42
 
 #: Risk bands. The label always carries the number as well as the colour, because colour alone is
-#: not an accessible way to encode severity.
+#: not an accessible way to encode severity. The hex is the *fill* used for a node on the light
+#: canvas (graph and static render); every one clears 3:1 against white so the shape stays visible.
 BANDS: tuple[tuple[float, str, str], ...] = (
-    (70.0, "critical", "#F2545B"),
-    (FLAG_THRESHOLD, "high", "#F2A65A"),
-    (20.0, "elevated", "#7C89EF"),
-    (0.0, "low", "#3E4560"),
+    (70.0, "critical", "#D92D3A"),
+    (FLAG_THRESHOLD, "high", "#C9770F"),
+    (20.0, "elevated", "#3E4FE0"),
+    (0.0, "low", "#858BA3"),
 )
 
 #: What each metric is for. Shown verbatim in the methodology table.
@@ -305,11 +306,11 @@ def _write_network_png(result: AnalysisResult, path: Path) -> None:
     colours = [_band(float(scores.get(node, 0.0)))[1] for node in aggregated.nodes]
     sizes = [60 + 26 * degrees.get(node, 0) for node in aggregated.nodes]
     edge_widths = [0.9 if (u in flagged and v in flagged) else 0.35 for u, v in aggregated.edges]
-    edge_colours = ["#8A93B8" if (u in flagged and v in flagged) else "#2A3050" for u, v in aggregated.edges]
+    edge_colours = ["#5F6675" if (u in flagged and v in flagged) else "#C2C7D6" for u, v in aggregated.edges]
 
     figure, axes = plt.subplots(figsize=(15, 10.5), dpi=140)
-    figure.patch.set_facecolor("#050717")
-    axes.set_facecolor("#050717")
+    figure.patch.set_facecolor("#FFFFFF")
+    axes.set_facecolor("#FFFFFF")
 
     nx.draw_networkx_edges(
         aggregated,
@@ -331,7 +332,7 @@ def _write_network_png(result: AnalysisResult, path: Path) -> None:
         node_color=colours,
         node_size=sizes,
         linewidths=[1.1 if node in flagged else 0.3 for node in aggregated.nodes],
-        edgecolors=["#FFFFFF" if node in flagged else "#141A4A" for node in aggregated.nodes],
+        edgecolors=["#1227AD" if node in flagged else "#FFFFFF" for node in aggregated.nodes],
     )
     labels = {node: node for node in aggregated.nodes if node in flagged or float(scores.get(node, 0.0)) >= 20.0}
     nx.draw_networkx_labels(
@@ -340,8 +341,8 @@ def _write_network_png(result: AnalysisResult, path: Path) -> None:
         labels=labels,
         ax=axes,
         font_size=6.5,
-        font_color="#E8EAF5",
-        bbox={"boxstyle": "round,pad=0.18", "facecolor": "#0A0F2E", "edgecolor": "none", "alpha": 0.8},
+        font_color="#121212",
+        bbox={"boxstyle": "round,pad=0.18", "facecolor": "#FFFFFF", "edgecolor": "none", "alpha": 0.82},
     )
 
     handles = [
@@ -352,18 +353,18 @@ def _write_network_png(result: AnalysisResult, path: Path) -> None:
         handles=handles,
         loc="upper left",
         frameon=True,
-        facecolor="#0A0F2E",
-        edgecolor="#141A4A",
+        facecolor="#FFFFFF",
+        edgecolor="#D5D8E4",
         fontsize=9,
         title="Risk score — node size is degree, labels are flagged accounts",
         title_fontsize=9,
     )
     for text in [*legend.get_texts(), legend.get_title()]:
-        text.set_color("#E8EAF5")
+        text.set_color("#121212")
 
     axes.set_title(
         "BazaarAfrica payment network — accounts as nodes, payments as directed edges",
-        color="#FFFFFF",
+        color="#121212",
         fontsize=13,
         pad=14,
     )
@@ -461,6 +462,73 @@ def _summary_cards(result: AnalysisResult, findings: list[dict[str, Any]], clust
         f'<div class="card-note">{_esc(note)}</div></div>'
         for label, value, note in cards
     )
+
+
+def _walkthrough_section(result: AnalysisResult, findings: list[dict[str, Any]], clusters: list[dict[str, Any]]) -> str:
+    """A guided tour for a reviewer who has never seen this page.
+
+    Written as steps rather than prose because the point is the *order*: the numbers frame the
+    claim, the evidence supports it, and the validation says how far to trust it. Every figure is
+    read off this run, so the tour cannot drift out of step with the report it introduces.
+    """
+    top = findings[0]["account_id"] if findings else None
+    # The highest-scoring cluster, not the largest: clusters are pre-sorted by top risk score, and
+    # the biggest component is the legitimate background, which is the opposite of the tour's point.
+    worst = clusters[0] if clusters else None
+    steps: list[tuple[str, str]] = [
+        (
+            "Start with the numbers above",
+            f"{len(findings)} of {len(result.metrics):,} accounts cleared the flagging threshold of "
+            f"{FLAG_THRESHOLD:.0f}. If precision reads below 100%, that is deliberate — the ledger "
+            "contains innocent accounts built specifically to look guilty, and a detector that never "
+            "trips on them has not been tested.",
+        ),
+    ]
+    if top is not None:
+        steps.append(
+            (
+                f'Read one row in full — <a href="#findings">{_esc(top)}</a>',
+                "Each row carries the signals that fired and the evidence sentence behind every one, "
+                "naming the counterparties, the amounts and the time windows. That sentence is the "
+                "deliverable: an investigator who cannot justify a freeze cannot act on it.",
+            )
+        )
+    if worst is not None:
+        steps.append(
+            (
+                f'Zoom out to the case — <a href="#clusters">cluster {_esc(worst["component_id"])}</a>',
+                f"{len(worst['flagged_accounts'])} flagged accounts inside one component of "
+                f"{worst['component_size']}, topping out at risk {worst['top_risk_score']:.0f}. Fraud is worked "
+                "cluster by cluster, so this is the level at which the findings become a single "
+                "investigation rather than a pile of alerts.",
+            )
+        )
+    steps.extend(
+        [
+            (
+                'Look at the shape — <a href="#network-section">the payment network</a>',
+                "Tick <em>show only flagged accounts</em> to strip the background away. The rings have "
+                "visible geometry: closed loops, a star collapsing into one collector, a fan out of a "
+                "single drained victim. Compare them with the busiest unflagged account, which has a "
+                "wide flat neighbourhood and no structure at all.",
+            ),
+            (
+                'Ask how far to trust it — <a href="#validation">validation</a>',
+                "Precision, recall and the false positives named individually, measured against planted "
+                "labels rather than estimated. The threshold sweep below it shows what the cut-off is "
+                "worth and where it stops holding.",
+            ),
+            (
+                "Run it on your own ledger",
+                "Nothing here is baked in. Point the CLI at any CSV with the same columns:"
+                '<br><code class="mono">uv run python -m tna.cli analyze --input yours.csv --out ./out</code>'
+                "<br>The file is validated first, so a bad column set produces one readable message "
+                "listing every problem, not a stack trace from inside the metrics code.",
+            ),
+        ]
+    )
+    items = "\n".join(f"<li><strong>{title}</strong><span>{body}</span></li>" for title, body in steps)
+    return f'<ol class="tour">{items}</ol>'
 
 
 def _findings_table(findings: list[dict[str, Any]]) -> str:
@@ -611,12 +679,22 @@ CHART = {
 }
 
 #: Each series gets a colour, a dash pattern and a marker shape, so the chart is readable in
-#: greyscale and to a colour-blind reader. Colour alone is never the only encoding.
+#: greyscale and to a colour-blind reader. Colour alone is never the only encoding. Every hue is
+#: dark enough to clear 4.5:1 against the light chart panel.
 SERIES: tuple[tuple[str, str, str, str, str], ...] = (
-    ("precision", "Precision", "var(--elevated, #7C89EF)", "none", "circle"),
-    ("recall", "Recall", "var(--high, #F2A65A)", "9 5", "square"),
-    ("f1", "F1", "#4ED9C0", "2 4", "triangle"),
+    ("precision", "Precision", "#3E4FE0", "none", "circle"),
+    ("recall", "Recall", "#8F4F00", "9 5", "square"),
+    ("f1", "F1", "#0B7A6C", "2 4", "triangle"),
 )
+
+#: Chart furniture, all against the light panel.
+CHART_GRID = "rgba(18,39,173,0.14)"
+CHART_TICK = "rgba(18,39,173,0.32)"
+CHART_AXIS = "rgba(18,39,173,0.38)"
+CHART_LABEL = "#4A4A4A"
+CHART_RULE = "#1227AD"
+CHART_BAND = "rgba(11,122,108,0.14)"
+CHART_BAND_SWATCH = "rgba(11,122,108,0.30)"
 
 
 def _chart_x(threshold: float) -> float:
@@ -643,17 +721,17 @@ def _sensitivity_svg(curve: pd.DataFrame, band: tuple[float, float] | None) -> s
         y = _chart_y(value)
         grid.append(
             f'<line x1="{CHART["left"]:.1f}" y1="{y:.1f}" x2="{CHART["right"]:.1f}" y2="{y:.1f}" '
-            f'stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+            f'stroke="{CHART_GRID}" stroke-width="1"/>'
             f'<text x="{CHART["left"] - 12:.1f}" y="{y + 4:.1f}" text-anchor="end" font-size="12" '
-            f'fill="#7E88B0">{value:.2f}</text>'
+            f'fill="{CHART_LABEL}">{value:.2f}</text>'
         )
     for threshold in range(0, 101, 10):
         x = _chart_x(threshold)
         grid.append(
             f'<line x1="{x:.1f}" y1="{CHART["bottom"]:.1f}" x2="{x:.1f}" y2="{CHART["bottom"] + 6:.1f}" '
-            f'stroke="rgba(255,255,255,0.25)" stroke-width="1"/>'
+            f'stroke="{CHART_TICK}" stroke-width="1"/>'
             f'<text x="{x:.1f}" y="{CHART["bottom"] + 22:.1f}" text-anchor="middle" font-size="12" '
-            f'fill="#7E88B0">{threshold}</text>'
+            f'fill="{CHART_LABEL}">{threshold}</text>'
         )
 
     shade = ""
@@ -661,14 +739,14 @@ def _sensitivity_svg(curve: pd.DataFrame, band: tuple[float, float] | None) -> s
         left, right = _chart_x(band[0]), _chart_x(band[1])
         shade = (
             f'<rect x="{left:.1f}" y="{CHART["top"]:.1f}" width="{max(right - left, 1.5):.1f}" '
-            f'height="{CHART["bottom"] - CHART["top"]:.1f}" fill="rgba(78,217,192,0.14)"/>'
+            f'height="{CHART["bottom"] - CHART["top"]:.1f}" fill="{CHART_BAND}"/>'
         )
 
     rule_x = _chart_x(FLAG_THRESHOLD)
     rule = (
         f'<line x1="{rule_x:.1f}" y1="{CHART["top"] - 12:.1f}" x2="{rule_x:.1f}" y2="{CHART["bottom"]:.1f}" '
-        f'stroke="#E8EAF5" stroke-width="1.4" stroke-dasharray="5 4"/>'
-        f'<text x="{rule_x + 8:.1f}" y="{CHART["top"] - 3:.1f}" font-size="12.5" fill="#E8EAF5" '
+        f'stroke="{CHART_RULE}" stroke-width="1.4" stroke-dasharray="5 4"/>'
+        f'<text x="{rule_x + 8:.1f}" y="{CHART["top"] - 3:.1f}" font-size="12.5" fill="{CHART_RULE}" '
         f'font-weight="600">chosen threshold = {FLAG_THRESHOLD:.0f}</text>'
     )
 
@@ -698,14 +776,14 @@ def _sensitivity_svg(curve: pd.DataFrame, band: tuple[float, float] | None) -> s
             f'<line x1="{x:.1f}" y1="{y:.1f}" x2="{x + 34:.1f}" y2="{y:.1f}" stroke="{colour}" '
             f'stroke-width="2.2"{dash_attr}/>'
             f"{_marker(shape, x + 17, y, colour)}"
-            f'<text x="{x + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="#B9C0DE">{_esc(label)} '
+            f'<text x="{x + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="{CHART_LABEL}">{_esc(label)} '
             f"({'solid' if dash == 'none' else 'dashed' if dash == '9 5' else 'dotted'})</text>"
         )
     if band is not None:
         y = CHART["legend2"]
         legend.append(
-            f'<rect x="{CHART["left"]:.1f}" y="{y - 7:.1f}" width="34" height="14" fill="rgba(78,217,192,0.28)"/>'
-            f'<text x="{CHART["left"] + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="#B9C0DE">'
+            f'<rect x="{CHART["left"]:.1f}" y="{y - 7:.1f}" width="34" height="14" fill="{CHART_BAND_SWATCH}"/>'
+            f'<text x="{CHART["left"] + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="{CHART_LABEL}">'
             f"shaded band = every threshold that still catches all the fraud, recall 1.00 "
             f"({band[0]:g}–{band[1]:g})</text>"
         )
@@ -726,15 +804,15 @@ def _sensitivity_svg(curve: pd.DataFrame, band: tuple[float, float] | None) -> s
   {shade}
   {"".join(grid)}
   <line x1="{CHART["left"]:.1f}" y1="{CHART["top"]:.1f}" x2="{CHART["left"]:.1f}"
-        y2="{CHART["bottom"]:.1f}" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        y2="{CHART["bottom"]:.1f}" stroke="{CHART_AXIS}" stroke-width="1"/>
   <line x1="{CHART["left"]:.1f}" y1="{CHART["bottom"]:.1f}" x2="{CHART["right"]:.1f}"
-        y2="{CHART["bottom"]:.1f}" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        y2="{CHART["bottom"]:.1f}" stroke="{CHART_AXIS}" stroke-width="1"/>
   {rule}
   {"".join(paths)}
   <text x="{(CHART["left"] + CHART["right"]) / 2:.1f}" y="{CHART["bottom"] + 46:.1f}" text-anchor="middle"
-        font-size="12.5" fill="#B9C0DE">Flagging threshold (risk score out of 100)</text>
+        font-size="12.5" fill="{CHART_LABEL}">Flagging threshold (risk score out of 100)</text>
   <text x="20" y="{(CHART["top"] + CHART["bottom"]) / 2:.1f}" text-anchor="middle" font-size="12.5"
-        fill="#B9C0DE" transform="rotate(-90 20 {(CHART["top"] + CHART["bottom"]) / 2:.1f})">Score (0–1)</text>
+        fill="{CHART_LABEL}" transform="rotate(-90 20 {(CHART["top"] + CHART["bottom"]) / 2:.1f})">Score (0–1)</text>
   {"".join(legend)}
 </svg>
 </div>"""
@@ -864,9 +942,13 @@ def _render_html(
 findings, evidence, methodology and measured precision/recall.">
 <style>
 :root {{
-  --bg: #050717; --panel: #0A0F2E; --panel-2: #101640; --line: rgba(255,255,255,0.10);
-  --ink: #E8EAF5; --ink-2: #B9C0DE; --dim: #7E88B0; --blue: #6B7BFF; --blue-deep: #3E4FE0;
-  --critical: #F2545B; --high: #F2A65A; --elevated: #7C89EF; --low: #3E4560;
+  --bg: #FFFFFF; --panel: #F7F8FC; --panel-2: #E8EAF5; --line: rgba(18,39,173,0.12);
+  --line-strong: rgba(18,39,173,0.22);
+  --ink: #121212; --ink-2: #2A2A2A; --dim: #5F6675; --blue: #3E4FE0; --blue-deep: #1227AD;
+  --critical: #C2303A; --critical-soft: #FCEDEE; --critical-line: #EFB9BD;
+  --high: #8F4F00; --high-soft: #FDF4E7; --high-line: #E8C48E;
+  --elevated: #3E4FE0; --elevated-soft: #E8EAF5; --elevated-line: #BDC3F6;
+  --low: #4A4A4A; --low-soft: #F0F1F5; --low-line: #D6D9E2;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
 }}
 * {{ box-sizing: border-box; }}
@@ -890,12 +972,22 @@ section > .lede {{ margin-bottom: 20px; }}
 .mono {{ font-family: var(--mono); }}
 .small {{ font-size: 12.5px; }}
 .dim {{ color: var(--dim); }}
-.strong {{ color: #fff; font-weight: 600; }}
+.strong {{ color: var(--ink); font-weight: 600; }}
 .num {{ font-variant-numeric: tabular-nums; white-space: nowrap; }}
 nav.jump {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }}
 nav.jump a {{ font-family: var(--mono); font-size: 12px; text-decoration: none; color: var(--ink-2);
-  border: 1px solid var(--line); border-radius: 9999px; padding: 5px 12px; }}
-nav.jump a:hover {{ border-color: var(--blue); color: #fff; }}
+  background: #fff; border: 1px solid var(--line-strong); border-radius: 9999px; padding: 5px 12px; }}
+nav.jump a:hover {{ border-color: var(--blue); background: var(--elevated-soft); color: var(--blue-deep); }}
+ol.tour {{ list-style: none; counter-reset: tour; margin: 0; padding: 0; display: grid; gap: 12px; }}
+ol.tour li {{ counter-increment: tour; position: relative; padding: 14px 18px 14px 52px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }}
+ol.tour li::before {{ content: counter(tour); position: absolute; left: 16px; top: 14px;
+  font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--blue-deep);
+  background: var(--elevated-soft); border-radius: 6px; width: 22px; height: 22px;
+  display: grid; place-items: center; }}
+ol.tour strong {{ display: block; font-size: 14.5px; margin-bottom: 4px; }}
+ol.tour span {{ display: block; font-size: 13.5px; color: var(--ink-2); }}
+ol.tour code {{ display: inline-block; margin-top: 6px; font-size: 12px; }}
 .cards {{ display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }}
 .card {{ background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }}
 .card-label {{ font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
@@ -903,25 +995,25 @@ nav.jump a:hover {{ border-color: var(--blue); color: #fff; }}
 .card-value {{ font-size: 34px; font-weight: 600; line-height: 1.15; margin: 6px 0 2px;
   font-variant-numeric: tabular-nums; }}
 .card-note {{ font-size: 12.5px; color: var(--dim); }}
-.scroll {{ overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }}
+.scroll {{ overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; }}
 table {{ border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }}
 th, td {{ text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }}
 th {{ font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
   color: var(--dim); background: var(--panel-2); position: sticky; top: 0; }}
 tbody tr:last-child td {{ border-bottom: none; }}
-tbody tr:hover {{ background: rgba(107,123,255,0.06); }}
+tbody tr:hover {{ background: rgba(62,79,224,0.05); }}
 ul.evidence {{ margin: 0; padding-left: 17px; color: var(--ink-2); font-size: 13.5px; }}
 ul.evidence li {{ margin-bottom: 5px; }}
 ul.evidence li:last-child {{ margin-bottom: 0; }}
 .tag {{ display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 8px; margin: 0 4px 4px 0;
-  border: 1px solid var(--line); border-radius: 9999px; color: var(--ink-2); background: rgba(255,255,255,0.03); }}
+  border: 1px solid var(--line-strong); border-radius: 9999px; color: var(--ink-2); background: #fff; }}
 td.tags {{ min-width: 170px; }}
 .pill {{ display: inline-block; font-family: var(--mono); font-size: 11.5px; font-weight: 600;
-  padding: 3px 10px; border-radius: 9999px; color: #050717; white-space: nowrap; }}
-.band-critical {{ background: var(--critical); }}
-.band-high {{ background: var(--high); }}
-.band-elevated {{ background: var(--elevated); }}
-.band-low {{ background: var(--low); color: var(--ink); }}
+  padding: 3px 10px; border-radius: 9999px; border: 1px solid transparent; white-space: nowrap; }}
+.band-critical {{ background: var(--critical-soft); color: var(--critical); border-color: var(--critical-line); }}
+.band-high {{ background: var(--high-soft); color: var(--high); border-color: var(--high-line); }}
+.band-elevated {{ background: var(--elevated-soft); color: var(--blue-deep); border-color: var(--elevated-line); }}
+.band-low {{ background: var(--low-soft); color: var(--low); border-color: var(--low-line); }}
 .legend {{ display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }}
 .clusters {{ display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }}
 .cluster {{ background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }}
@@ -933,8 +1025,9 @@ td.tags {{ min-width: 170px; }}
   padding-bottom: 6px; }}
 .cluster dt {{ font-size: 12.5px; color: var(--dim); }}
 .cluster dd {{ margin: 0; font-size: 13.5px; text-align: right; }}
+.cluster dd.num {{ white-space: normal; }}
 .cluster-members {{ font-size: 12.5px; word-break: break-word; margin-bottom: 0; }}
-#network {{ height: 620px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }}
+#network {{ height: 620px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }}
 .controls {{ display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 0 0 12px;
   font-size: 13.5px; color: var(--ink-2); }}
 .controls label {{ display: flex; align-items: center; gap: 7px; cursor: pointer; }}
@@ -951,10 +1044,10 @@ noscript .note {{ display: block; background: var(--panel-2); border: 1px solid 
 .verdict p {{ margin: 0 0 8px; }}
 .threshold {{ background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
   max-width: none; }}
-.chart {{ background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+.chart {{ background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
   margin: 18px 0; }}
 .chart svg {{ display: block; width: 100%; max-width: 100%; height: auto; }}
-tbody tr.chosen td {{ background: rgba(107,123,255,0.14); color: #fff; }}
+tbody tr.chosen td {{ background: var(--elevated-soft); color: var(--ink); }}
 footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px; font-size: 12.5px;
   color: var(--dim); }}
 @media (max-width: 640px) {{ .card-value {{ font-size: 27px; }} #network {{ height: 440px; }} }}
@@ -972,7 +1065,8 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   explainable weighted risk score. Every flag below carries the evidence that produced it.</p>
   <p class="mono small dim">Generated {_esc(generated_at)} · deterministic pipeline, seeded layout</p>
   <nav class="jump">
-    <a href="#findings">Findings</a><a href="#clusters">Clusters</a><a href="#network-section">Network</a>
+    <a href="#walkthrough">Start here</a><a href="#findings">Findings</a><a href="#clusters">Clusters</a>
+    <a href="#network-section">Network</a>
     <a href="#methodology">Methodology</a><a href="#validation">Validation</a>{sensitivity_link}
     <a href="findings.json">findings.json</a><a href="network.png">network.png</a>
   </nav>
@@ -983,6 +1077,13 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   <p class="lede">Counts from this run. Precision and recall are measured against the labelled fraud
   planted in the generated ledger, not estimated.</p>
   <div class="cards">{_summary_cards(result, findings, clusters)}</div>
+</section>
+
+<section id="walkthrough">
+  <h2>Start here — a guided tour</h2>
+  <p class="lede">Six steps through this report in the order the argument is built, for a reader who
+  has not seen it before. Every figure below is read off this run.</p>
+  {_walkthrough_section(result, findings, clusters)}
 </section>
 
 <section id="findings">
@@ -1055,10 +1156,11 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   var nodes = new vis.DataSet(data.nodes.map(function (n) {{
     return {{
       id: n.id, label: n.label, value: n.value, title: n.title, risk: n.risk, flagged: n.flagged,
-      color: {{ background: n.color, border: n.flagged ? "#FFFFFF" : "#141A4A",
-                highlight: {{ background: n.color, border: "#FFFFFF" }} }},
+      color: {{ background: n.color, border: n.flagged ? "#1227AD" : "#C2C7D6",
+                highlight: {{ background: n.color, border: "#1227AD" }} }},
       borderWidth: n.flagged ? 2 : 1,
-      font: {{ color: n.flagged || n.risk >= 20 ? "#E8EAF5" : "rgba(232,234,245,0.35)", size: 11 }}
+      font: {{ color: n.flagged || n.risk >= 20 ? "#121212" : "rgba(18,18,18,0.45)", size: 11,
+               strokeWidth: 3, strokeColor: "#FFFFFF" }}
     }};
   }}));
   var edges = new vis.DataSet(data.edges.map(function (e, i) {{
@@ -1069,8 +1171,8 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
       barnesHut: {{ gravitationalConstant: -4200, centralGravity: 1.1, springLength: 95,
         springConstant: 0.05, avoidOverlap: 0.2 }} }},
     nodes: {{ shape: "dot", scaling: {{ min: 9, max: 38, label: {{ enabled: true, min: 11, max: 20 }} }} }},
-    edges: {{ arrows: {{ to: {{ enabled: true, scaleFactor: 0.42 }} }}, color: {{ color: "#2A3050",
-      highlight: "#6B7BFF", hover: "#6B7BFF" }}, smooth: {{ type: "continuous" }},
+    edges: {{ arrows: {{ to: {{ enabled: true, scaleFactor: 0.42 }} }}, color: {{ color: "#A9AFC2",
+      highlight: "#3E4FE0", hover: "#3E4FE0" }}, smooth: {{ type: "continuous" }},
       scaling: {{ min: 0.4, max: 4 }} }},
     interaction: {{ hover: true, tooltipDelay: 90 }}
   }});

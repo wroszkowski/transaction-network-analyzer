@@ -23,6 +23,15 @@ def rendered(tmp_path_factory):
     return out_dir, result
 
 
+def test_the_walkthrough_orients_a_first_time_reader(rendered):
+    """A reviewer arrives cold. The tour has to name the real top finding, not a placeholder."""
+    out_dir, result = rendered
+    html = (out_dir / "index.html").read_text()
+    assert 'id="walkthrough"' in html
+    assert result.flagged[0] in html.split('id="findings"')[0], "the tour must name the top account"
+    assert "tna.cli" in html, "the tour must show how to run the tool"
+
+
 def test_the_three_output_files_are_written(rendered):
     out_dir, _ = rendered
 

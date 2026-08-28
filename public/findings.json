@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28 09:47 UTC",
+  "generated_at": "2026-08-28 10:06 UTC",
   "summary": {
     "transactions": 525,
     "accounts": 140,
@@ -32,7 +32,7 @@
         "velocity_burst"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F01 -> SMR_COLLECTOR -> SMR_F01 carrying 106,678 in total, closed within 0.20 day(s) with 29% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F01 -> SMR_COLLECTOR carrying 106,678 in total, closed within 0.20 day(s) with 29% of the value preserved at every hop",
         "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties",
@@ -213,7 +213,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop RNG_A_00 -> RNG_A_01 -> RNG_A_02 -> RNG_A_00 carrying 2,199,998 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
+        "sits on a 3-account loop RNG_A_01 -> RNG_A_02 -> RNG_A_00 -> RNG_A_01 carrying 2,199,998 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
         "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
         "all 10 accounts in cluster 2 were created within 2 day(s) of each other",
         "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
@@ -273,7 +273,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop RNG_A_06 -> RNG_A_04 -> RNG_A_05 -> RNG_A_06 carrying 1,221,328 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
+        "sits on a 3-account loop RNG_A_05 -> RNG_A_06 -> RNG_A_04 -> RNG_A_05 carrying 1,221,328 in total, closed within 0.04 day(s) with 96% of the value preserved at every hop",
         "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
         "all 10 accounts in cluster 2 were created within 2 day(s) of each other",
         "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
@@ -333,7 +333,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop RNG_A_00 -> RNG_A_08 -> RNG_A_09 -> RNG_A_00 carrying 1,464,779 in total, closed within 1.95 day(s) with 57% of the value preserved at every hop",
+        "sits on a 3-account loop RNG_A_09 -> RNG_A_00 -> RNG_A_08 -> RNG_A_09 carrying 1,464,779 in total, closed within 1.95 day(s) with 57% of the value preserved at every hop",
         "shares device dev_shared_a1 with 9 other account(s): RNG_A_00, RNG_A_01, RNG_A_02, RNG_A_03, RNG_A_04, RNG_A_05, RNG_A_06, RNG_A_07, RNG_A_08, RNG_A_09",
         "all 10 accounts in cluster 2 were created within 2 day(s) of each other",
         "belongs to an isolated 10-account cluster with 19 internal payment relationships and no outside ties"
@@ -363,7 +363,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F00 -> SMR_COLLECTOR -> SMR_F00 carrying 98,975 in total, closed within 0.20 day(s) with 31% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F00 -> SMR_COLLECTOR carrying 98,975 in total, closed within 0.20 day(s) with 31% of the value preserved at every hop",
         "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -393,7 +393,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F01 -> SMR_COLLECTOR -> SMR_F01 carrying 106,678 in total, closed within 0.20 day(s) with 29% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F01 -> SMR_COLLECTOR carrying 106,678 in total, closed within 0.20 day(s) with 29% of the value preserved at every hop",
         "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -423,7 +423,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F02 -> SMR_COLLECTOR -> SMR_F02 carrying 100,960 in total, closed within 0.20 day(s) with 26% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F02 -> SMR_COLLECTOR carrying 100,960 in total, closed within 0.20 day(s) with 26% of the value preserved at every hop",
         "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -453,7 +453,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F03 -> SMR_COLLECTOR -> SMR_F03 carrying 99,374 in total, closed within 0.19 day(s) with 36% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F03 -> SMR_COLLECTOR carrying 99,374 in total, closed within 0.19 day(s) with 36% of the value preserved at every hop",
         "shares device dev_shared_b1 with 4 other account(s): SMR_COLLECTOR, SMR_F00, SMR_F03, SMR_F06, SMR_F09",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -483,7 +483,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F04 -> SMR_COLLECTOR -> SMR_F04 carrying 98,854 in total, closed within 0.19 day(s) with 33% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F04 -> SMR_COLLECTOR carrying 98,854 in total, closed within 0.19 day(s) with 33% of the value preserved at every hop",
         "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -513,7 +513,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 2-account loop SMR_F05 -> SMR_COLLECTOR -> SMR_F05 carrying 95,007 in total, closed within 0.19 day(s) with 34% of the value preserved at every hop",
+        "sits on a 2-account loop SMR_COLLECTOR -> SMR_F05 -> SMR_COLLECTOR carrying 95,007 in total, closed within 0.19 day(s) with 34% of the value preserved at every hop",
         "shares device dev_shared_b2 with 7 other account(s): SMR_F00, SMR_F01, SMR_F02, SMR_F03, SMR_F04, SMR_F05, SMR_F07, SMR_F10",
         "all 15 accounts in cluster 4 were created within 1 day(s) of each other",
         "belongs to an isolated 15-account cluster with 22 internal payment relationships and no outside ties"
@@ -542,7 +542,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -570,7 +570,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -598,7 +598,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 -> ATO_MULE_0 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_2 -> ATO_MULE_0 -> ATO_MULE_1 -> ATO_MULE_2 carrying 58,404 in total, closed within 0.02 day(s) with 41% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -626,7 +626,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 -> ATO_MULE_5 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -654,7 +654,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 -> ATO_MULE_5 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -682,7 +682,7 @@
         "tight_component"
       ],
       "reasons": [
-        "sits on a 3-account loop ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 -> ATO_MULE_5 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
+        "sits on a 3-account loop ATO_MULE_4 -> ATO_MULE_5 -> ATO_MULE_3 -> ATO_MULE_4 carrying 49,338 in total, closed within 0.02 day(s) with 58% of the value preserved at every hop",
         "shares device dev_takeover_kit with 6 other account(s): ATO_MULE_0, ATO_MULE_1, ATO_MULE_2, ATO_MULE_3, ATO_MULE_4, ATO_MULE_5, ATO_VICTIM",
         "belongs to an isolated 7-account cluster with 13 internal payment relationships and no outside ties"
       ],
@@ -1101,7 +1101,7 @@
         "shared_identifiers"
       ],
       "reasons": [
-        "sits on a 2-account loop HH_TEEN_03 -> HH_PARENT_01 -> HH_TEEN_03 carrying 16,100 in total, closed within 0.80 day(s) with 34% of the value preserved at every hop",
+        "sits on a 2-account loop HH_PARENT_01 -> HH_TEEN_03 -> HH_PARENT_01 carrying 16,100 in total, closed within 0.80 day(s) with 34% of the value preserved at every hop",
         "shares device dev_family_tablet with 2 other account(s): HH_PARENT_01, HH_TEEN_02, HH_TEEN_03"
       ],
       "component_id": 0,
@@ -1127,7 +1127,7 @@
         "shared_identifiers"
       ],
       "reasons": [
-        "sits on a 2-account loop HH_TEEN_03 -> HH_PARENT_01 -> HH_TEEN_03 carrying 16,100 in total, closed within 0.80 day(s) with 34% of the value preserved at every hop",
+        "sits on a 2-account loop HH_PARENT_01 -> HH_TEEN_03 -> HH_PARENT_01 carrying 16,100 in total, closed within 0.80 day(s) with 34% of the value preserved at every hop",
         "shares device dev_family_tablet with 2 other account(s): HH_PARENT_01, HH_TEEN_02, HH_TEEN_03"
       ],
       "component_id": 0,
