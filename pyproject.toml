@@ -1,17 +1,21 @@
 [project]
-name = "template-python"
+name = "transaction-network-analyzer"
 version = "0.0.1"
-description = "Add your description here"
+description = "Network-based fraud ring detection for P2P marketplace transactions"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "networkx>=3.4",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/template_python"]
+packages = ["src/tna"]
 
 [dependency-groups]
 dev = [
@@ -93,7 +97,7 @@ addopts = """
 --cov-report xml:tests/report/coverage.xml \
 --local-badge-output-dir tests/report/ \
 --local-badge-generate cov status requires-python version \
---local-badge-package=template_python \
+--local-badge-package=tna \
 --ignore=docs/
 --cov-fail-under=75 \
 -v

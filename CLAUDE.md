@@ -1,4 +1,4 @@
-# template-python
+# transaction-network-analyzer
 
 `uv` for envs, deps and running Python scripts, `just` as the command surface, `pre-commit` as the quality gate (ruff check, ruff format, ty, pytest). Setup: `just init`.
 

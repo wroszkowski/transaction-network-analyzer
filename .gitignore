@@ -223,7 +223,7 @@ __marimo__/
 .artifacts/
 .local/
 .worktrees/
-data/
+# data/  -- the generated demo dataset is a deliverable, so it is tracked
 logs/
 worktrees/
 .claude/settings.local.json
