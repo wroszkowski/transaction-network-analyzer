@@ -228,3 +228,4 @@ logs/
 worktrees/
 .claude/settings.local.json
 .mcp.json
+.vercel

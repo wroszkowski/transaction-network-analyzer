@@ -1,0 +1,13 @@
+.venv/
+venv/
+src/
+tests/
+docs/
+data/
+.github/
+.idea/
+.docker/
+.claude/
+uv.lock
+*.md
+!public/**
