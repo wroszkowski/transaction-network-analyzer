@@ -47,8 +47,16 @@ uv run python -m tna.cli analyze --input data/transactions.csv \
 `--accounts` and `--truth` are optional. Without an accounts file the onboarding detector has
 nothing to work with and is silent; without ground truth the pipeline runs and reports, it just
 cannot score itself. The required transaction columns are `transaction_id`, `timestamp`,
-`sender_account`, `receiver_account`, `amount`, `currency`, `device_id`, `ip_address`,
-`payment_method`.
+`sender_account`, `receiver_account`, `amount` and `currency`; `device_id`, `ip_address` and
+`payment_method` are optional and only feed the enrichment signals, so a ledger without them is
+analysed with `shared_identifiers` silent rather than rejected.
+
+The ledger is validated before anything touches it — see
+[`tna/schema.py`](src/tna/schema.py) and the Technology choices section — so a file with the wrong
+columns, unparseable timestamps, negative amounts or repeated transaction ids produces one message
+listing every problem and a non-zero exit code, not a `KeyError` from inside the metrics code. Add
+`-v` to any command to see the pipeline stages on stderr, `-vv` to also see how many candidate
+cycles the span and coherence constraints rejected. Stdout stays results-only either way.
 
 ## Approach
 
@@ -70,6 +78,40 @@ holding every intermediate, so any stage can be inspected without re-running the
 
 Amounts are analysed per currency. There is no FX normalisation across NGN, KES, ZAR and GHS,
 because inventing exchange rates to produce a single tidy number would be fabricating data.
+
+## Technology choices
+
+**Plain dataclasses rather than Pydantic.** Pydantic earns its place where data crosses a trust
+boundary and has to be checked before it is believed. `Signal`, `AnalysisResult` and `Dataset` are
+not that: every one of them is constructed inside this package by code that just computed the
+values, so validating them would be re-checking our own arithmetic. `AnalysisResult` also carries a
+`MultiDiGraph` and four DataFrames, which Pydantic can only accept under
+`arbitrary_types_allowed` — that is, by switching validation off for exactly the fields where a
+mistake would be expensive. The real trust boundary is the input CSV, which arrives from an
+analyst's own tooling and is checked explicitly in [`tna/schema.py`](src/tna/schema.py): required
+columns, coercible timestamps, non-negative numeric amounts, populated sender and receiver, unique
+transaction ids, all reported in one message rather than one exception per pass. Validation belongs
+at the edge, and it is there.
+
+**pandas.** The criticisms are real. A DataFrame costs several times the memory of the same data in
+a typed array; chained indexing silently returns copies and produces the assignment that does
+nothing; there is no schema enforcement, so a column of mixed types is discovered when something
+downstream misbehaves rather than at load; and execution is single-threaded with no query optimiser,
+so an inefficient chain of operations stays inefficient. None of the first three bind here. This
+ledger is 525 rows and roughly 200 KB, the whole pipeline runs in seconds, and the cost is dominated
+by cycle enumeration over the graph rather than by anything pandas does — the dataframe work is
+grouping and summing a few hundred rows. What would change the answer is scale: at millions of
+transactions this moves to Polars, for the lazy typed API and the multi-threaded execution, or to
+DuckDB, to push the per-account aggregations into SQL and out of Python. The schema criticism is the
+one that applies at any size, because a ledger with a misnamed column is wrong at 500 rows exactly
+as it is at 500 million, and that is what `tna/schema.py` addresses.
+
+**A weighted sum rather than a model.** Argued in full under [Why a weighted sum and not a
+model](#why-a-weighted-sum-and-not-a-model): an investigator has to justify freezing a real person's
+account, named signals with arguable weights support that and a fitted score does not, and at 140
+accounts of synthetic traffic a model would be learning the generator. The stretch-goal section
+records what the model version would be worth building as — a benchmark run alongside the heuristic,
+not a replacement for it.
 
 ## Metrics
 
@@ -304,7 +346,7 @@ is doing more work here than it should.
   and being drained, and an investigator needs to see it. "Flagged" means "investigate", not
   "guilty".
 
-Test suite: 63 tests, 96.3% coverage, `just all-hooks` green. The claims above are tests, not
+Test suite: 84 tests, 97.9% coverage, `just all-hooks` green. The claims above are tests, not
 sentences: the legitimate hub staying at zero, each hard-negative population's score, and the
 precision and recall figures are all asserted in the suite.
 
