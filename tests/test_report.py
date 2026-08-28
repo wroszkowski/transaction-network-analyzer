@@ -70,6 +70,8 @@ def test_findings_json_is_machine_readable_and_matches_the_analysis(rendered):
     findings = json.loads((out_dir / "findings.json").read_text())
 
     assert [entry["account_id"] for entry in findings["findings"]] == result.flagged
+    # Exact, not approximate: findings.json is the machine-readable copy and must not round away
+    # precision that a reader might want to diff between two runs.
     assert findings["evaluation"]["precision"] == result.evaluation["precision"]
     assert findings["summary"]["accounts_flagged"] == len(result.flagged)
     assert findings["method"]["flag_threshold"]

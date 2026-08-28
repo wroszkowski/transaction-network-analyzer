@@ -97,7 +97,7 @@ addopts = """
 --cov-report xml:tests/report/coverage.xml \
 --local-badge-output-dir tests/report/ \
 --local-badge-generate cov status requires-python version \
---local-badge-package=tna \
+--local-badge-package=transaction-network-analyzer \
 --ignore=docs/
 --cov-fail-under=75 \
 -v

@@ -35,6 +35,9 @@ class AnalysisResult:
     scores: pd.DataFrame
     flagged: list[str]
     evaluation: evaluate_module.Evaluation | None
+    #: The labels the run was scored against, kept so the report can re-evaluate at other
+    #: thresholds. ``None`` for a real ledger, which is what makes the sensitivity sweep optional.
+    ground_truth: Mapping[str, str] | None = None
 
 
 def analyze(
@@ -64,4 +67,5 @@ def analyze(
         scores=scores,
         flagged=flagged,
         evaluation=evaluation,
+        ground_truth=ground_truth,
     )

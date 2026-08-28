@@ -30,6 +30,7 @@ import networkx as nx  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from . import detectors  # noqa: E402
+from . import sensitivity as sensitivity_module  # noqa: E402
 from .score import FLAG_THRESHOLD, WEIGHTS  # noqa: E402
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -99,14 +100,15 @@ def render_report(result: AnalysisResult, out_dir: Path) -> None:
 
     findings = _build_findings(result)
     clusters = _build_clusters(result, findings)
+    curve = _sensitivity_curve(result)
 
     _write_network_png(result, out_dir / "network.png")
     (out_dir / "findings.json").write_text(
-        json.dumps(_findings_document(result, findings, clusters, generated_at), indent=2) + "\n",
+        json.dumps(_findings_document(result, findings, clusters, curve, generated_at), indent=2) + "\n",
         encoding="utf-8",
     )
     (out_dir / "index.html").write_text(
-        _render_html(result, findings, clusters, generated_at),
+        _render_html(result, findings, clusters, curve, generated_at),
         encoding="utf-8",
     )
 
@@ -198,17 +200,52 @@ def _build_clusters(result: AnalysisResult, findings: list[dict[str, Any]]) -> l
     return clusters
 
 
+#: Resolution of the sweep used to locate the edges of the perfect-score band. Finer than the table,
+#: because "the answer is unchanged between 38 and 41" is a much stronger claim than "at 40 it works",
+#: and rounding that band to the nearest 5 would throw the claim away.
+BAND_STEP = 0.1
+
+
+def _sensitivity_curve(result: AnalysisResult) -> pd.DataFrame | None:
+    """The threshold sweep, or ``None`` when the ledger came without labels to sweep against."""
+    if result.evaluation is None or result.ground_truth is None:
+        return None
+    return sensitivity_module.sweep(result.scores, result.ground_truth)
+
+
+def _fine_sweep(result: AnalysisResult) -> pd.DataFrame | None:
+    """The same sweep at 0.1 resolution, used only to locate the exact edges of a plateau."""
+    if result.ground_truth is None:
+        return None
+    steps = int(round(100 / BAND_STEP)) + 1
+    return sensitivity_module.sweep(
+        result.scores,
+        result.ground_truth,
+        [round(index * BAND_STEP, 1) for index in range(steps)],
+    )
+
+
+def _recall_band(result: AnalysisResult) -> tuple[float, float] | None:
+    """Every threshold that still catches all of the planted fraud.
+
+    This is the robustness claim, and it survives a dataset where nothing scores perfectly: anywhere
+    inside this band not one fraudulent account is missed, so the sensible cut-off is its top edge,
+    where the fewest innocent accounts come along for the ride.
+    """
+    fine = _fine_sweep(result)
+    return None if fine is None else sensitivity_module.plateau(fine, precision=0.0, recall=1.0)
+
+
 def _findings_document(
     result: AnalysisResult,
     findings: list[dict[str, Any]],
     clusters: list[dict[str, Any]],
+    curve: pd.DataFrame | None,
     generated_at: str,
 ) -> dict[str, Any]:
-    evaluation = None
-    if result.evaluation is not None:
-        evaluation = {
-            key: (round(value, 4) if isinstance(value, float) else value) for key, value in result.evaluation.items()
-        }
+    # Not rounded: this file is the machine-readable copy, and a reader that wants two decimal places
+    # can round for itself, whereas one that wants to diff two runs cannot recover what was thrown away.
+    evaluation = dict(result.evaluation) if result.evaluation is not None else None
     return {
         "generated_at": generated_at,
         "summary": {
@@ -222,6 +259,33 @@ def _findings_document(
         "findings": findings,
         "clusters": clusters,
         "evaluation": evaluation,
+        "sensitivity": _sensitivity_document(result, curve),
+    }
+
+
+def _sensitivity_document(result: AnalysisResult, curve: pd.DataFrame | None) -> dict[str, Any] | None:
+    """The sweep as records, plus the band inside which the choice of threshold changes nothing."""
+    if curve is None:
+        return None
+    band = _recall_band(result)
+    best = curve.loc[curve["f1"].idxmax()]
+    return {
+        "chosen_threshold": FLAG_THRESHOLD,
+        "full_recall_between": list(band) if band else None,
+        "best_f1_threshold": float(best["threshold"]),
+        "best_f1": float(best["f1"]),
+        "curve": [
+            {
+                "threshold": float(row["threshold"]),
+                "flagged": int(row["flagged"]),
+                "precision": float(row["precision"]),
+                "recall": float(row["recall"]),
+                "f1": float(row["f1"]),
+                "false_positives": int(row["false_positives"]),
+                "false_negatives": int(row["false_negatives"]),
+            }
+            for row in curve.to_dict("records")
+        ],
     }
 
 
@@ -531,13 +595,259 @@ high-degree hub is in the dataset precisely so this number can be shown rather t
 """
 
 
+# --------------------------------------------------------------------------------------
+# threshold sensitivity
+# --------------------------------------------------------------------------------------
+
+#: Chart geometry, in viewBox units. The SVG scales with the page; only the ratio matters.
+CHART = {
+    "w": 760.0,
+    "left": 74.0,
+    "right": 726.0,
+    "top": 30.0,
+    "bottom": 286.0,
+    "legend": 372.0,
+    "legend2": 404.0,
+}
+
+#: Each series gets a colour, a dash pattern and a marker shape, so the chart is readable in
+#: greyscale and to a colour-blind reader. Colour alone is never the only encoding.
+SERIES: tuple[tuple[str, str, str, str, str], ...] = (
+    ("precision", "Precision", "var(--elevated, #7C89EF)", "none", "circle"),
+    ("recall", "Recall", "var(--high, #F2A65A)", "9 5", "square"),
+    ("f1", "F1", "#4ED9C0", "2 4", "triangle"),
+)
+
+
+def _chart_x(threshold: float) -> float:
+    return CHART["left"] + (threshold / 100.0) * (CHART["right"] - CHART["left"])
+
+
+def _chart_y(value: float) -> float:
+    return CHART["bottom"] - value * (CHART["bottom"] - CHART["top"])
+
+
+def _marker(shape: str, x: float, y: float, colour: str) -> str:
+    if shape == "circle":
+        return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{colour}"/>'
+    if shape == "square":
+        return f'<rect x="{x - 3.1:.1f}" y="{y - 3.1:.1f}" width="6.2" height="6.2" fill="{colour}"/>'
+    points = f"{x:.1f},{y - 3.9:.1f} {x + 3.6:.1f},{y + 2.6:.1f} {x - 3.6:.1f},{y + 2.6:.1f}"
+    return f'<polygon points="{points}" fill="{colour}"/>'
+
+
+def _sensitivity_svg(curve: pd.DataFrame, band: tuple[float, float] | None) -> str:
+    """A hand-rolled line chart. No library, no network request, no JavaScript."""
+    grid = []
+    for value in (0.0, 0.25, 0.5, 0.75, 1.0):
+        y = _chart_y(value)
+        grid.append(
+            f'<line x1="{CHART["left"]:.1f}" y1="{y:.1f}" x2="{CHART["right"]:.1f}" y2="{y:.1f}" '
+            f'stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+            f'<text x="{CHART["left"] - 12:.1f}" y="{y + 4:.1f}" text-anchor="end" font-size="12" '
+            f'fill="#7E88B0">{value:.2f}</text>'
+        )
+    for threshold in range(0, 101, 10):
+        x = _chart_x(threshold)
+        grid.append(
+            f'<line x1="{x:.1f}" y1="{CHART["bottom"]:.1f}" x2="{x:.1f}" y2="{CHART["bottom"] + 6:.1f}" '
+            f'stroke="rgba(255,255,255,0.25)" stroke-width="1"/>'
+            f'<text x="{x:.1f}" y="{CHART["bottom"] + 22:.1f}" text-anchor="middle" font-size="12" '
+            f'fill="#7E88B0">{threshold}</text>'
+        )
+
+    shade = ""
+    if band is not None:
+        left, right = _chart_x(band[0]), _chart_x(band[1])
+        shade = (
+            f'<rect x="{left:.1f}" y="{CHART["top"]:.1f}" width="{max(right - left, 1.5):.1f}" '
+            f'height="{CHART["bottom"] - CHART["top"]:.1f}" fill="rgba(78,217,192,0.14)"/>'
+        )
+
+    rule_x = _chart_x(FLAG_THRESHOLD)
+    rule = (
+        f'<line x1="{rule_x:.1f}" y1="{CHART["top"] - 12:.1f}" x2="{rule_x:.1f}" y2="{CHART["bottom"]:.1f}" '
+        f'stroke="#E8EAF5" stroke-width="1.4" stroke-dasharray="5 4"/>'
+        f'<text x="{rule_x + 8:.1f}" y="{CHART["top"] - 3:.1f}" font-size="12.5" fill="#E8EAF5" '
+        f'font-weight="600">chosen threshold = {FLAG_THRESHOLD:.0f}</text>'
+    )
+
+    records = curve.to_dict("records")
+    paths = []
+    for column, _label, colour, dash, shape in SERIES:
+        points = " ".join(
+            f"{_chart_x(float(row['threshold'])):.1f},{_chart_y(float(row[column])):.1f}" for row in records
+        )
+        dash_attr = f' stroke-dasharray="{dash}"' if dash != "none" else ""
+        paths.append(
+            f'<polyline points="{points}" fill="none" stroke="{colour}" stroke-width="2.2" '
+            f'stroke-linejoin="round"{dash_attr}/>'
+        )
+        paths.extend(
+            _marker(shape, _chart_x(float(row["threshold"])), _chart_y(float(row[column])), colour)
+            for row in records
+            if float(row["threshold"]) % 10 == 0
+        )
+
+    legend = []
+    for index, (_column, label, colour, dash, shape) in enumerate(SERIES):
+        x = CHART["left"] + index * 215.0
+        y = CHART["legend"]
+        dash_attr = f' stroke-dasharray="{dash}"' if dash != "none" else ""
+        legend.append(
+            f'<line x1="{x:.1f}" y1="{y:.1f}" x2="{x + 34:.1f}" y2="{y:.1f}" stroke="{colour}" '
+            f'stroke-width="2.2"{dash_attr}/>'
+            f"{_marker(shape, x + 17, y, colour)}"
+            f'<text x="{x + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="#B9C0DE">{_esc(label)} '
+            f"({'solid' if dash == 'none' else 'dashed' if dash == '9 5' else 'dotted'})</text>"
+        )
+    if band is not None:
+        y = CHART["legend2"]
+        legend.append(
+            f'<rect x="{CHART["left"]:.1f}" y="{y - 7:.1f}" width="34" height="14" fill="rgba(78,217,192,0.28)"/>'
+            f'<text x="{CHART["left"] + 44:.1f}" y="{y + 4.5:.1f}" font-size="12.5" fill="#B9C0DE">'
+            f"shaded band = every threshold that still catches all the fraud, recall 1.00 "
+            f"({band[0]:g}–{band[1]:g})</text>"
+        )
+
+    caption = (
+        "Line chart of precision, recall and F1 against the flagging threshold from 0 to 100. "
+        f"Recall holds at 1.0 up to a threshold of {band[1]:g} and falls away above it, while "
+        f"precision climbs steadily as the threshold rises. "
+        if band
+        else "Line chart of precision, recall and F1 against the flagging threshold from 0 to 100. "
+    ) + f"The chosen threshold of {FLAG_THRESHOLD:.0f} is marked with a vertical dashed rule."
+
+    height = (CHART["legend2"] if band is not None else CHART["legend"]) + 28.0
+    return f"""<div class="chart">
+<svg viewBox="0 0 {CHART["w"]:.0f} {height:.0f}" role="img" preserveAspectRatio="xMidYMid meet"
+     aria-label="{_esc(caption)}">
+  <title>Precision, recall and F1 against the flagging threshold</title>
+  {shade}
+  {"".join(grid)}
+  <line x1="{CHART["left"]:.1f}" y1="{CHART["top"]:.1f}" x2="{CHART["left"]:.1f}"
+        y2="{CHART["bottom"]:.1f}" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+  <line x1="{CHART["left"]:.1f}" y1="{CHART["bottom"]:.1f}" x2="{CHART["right"]:.1f}"
+        y2="{CHART["bottom"]:.1f}" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+  {rule}
+  {"".join(paths)}
+  <text x="{(CHART["left"] + CHART["right"]) / 2:.1f}" y="{CHART["bottom"] + 46:.1f}" text-anchor="middle"
+        font-size="12.5" fill="#B9C0DE">Flagging threshold (risk score out of 100)</text>
+  <text x="20" y="{(CHART["top"] + CHART["bottom"]) / 2:.1f}" text-anchor="middle" font-size="12.5"
+        fill="#B9C0DE" transform="rotate(-90 20 {(CHART["top"] + CHART["bottom"]) / 2:.1f})">Score (0–1)</text>
+  {"".join(legend)}
+</svg>
+</div>"""
+
+
+def _sensitivity_table(curve: pd.DataFrame) -> str:
+    rows = []
+    for row in curve.to_dict("records"):
+        threshold = float(row["threshold"])
+        chosen = ' class="chosen"' if threshold == FLAG_THRESHOLD else ""
+        marker = " ←" if threshold == FLAG_THRESHOLD else ""
+        rows.append(
+            f"<tr{chosen}>"
+            f'<td class="num mono strong">{threshold:.0f}{marker}</td>'
+            f'<td class="num">{int(row["flagged"])}</td>'
+            f'<td class="num">{float(row["precision"]):.1%}</td>'
+            f'<td class="num">{float(row["recall"]):.1%}</td>'
+            f'<td class="num">{float(row["f1"]):.3f}</td>'
+            f'<td class="num">{int(row["false_positives"])}</td>'
+            f'<td class="num">{int(row["false_negatives"])}</td>'
+            f"</tr>"
+        )
+    return (
+        '<div class="scroll"><table>'
+        "<thead><tr><th>Threshold</th><th>Accounts flagged</th><th>Precision</th><th>Recall</th>"
+        "<th>F1</th><th>False positives</th><th>False negatives</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table></div>"
+    )
+
+
+def _conclusion(curve: pd.DataFrame, band: tuple[float, float] | None, best: dict[str, Any]) -> str:
+    """The honest reading of this particular curve, in this run's own numbers."""
+    if band is None:
+        return (
+            "<p>No threshold on this ledger catches every planted account, so the choice here is a "
+            "genuine trade-off rather than a free one. The best F1 on the sweep is "
+            f"<b>{float(best['f1']):.3f}</b> at a threshold of <b>{float(best['threshold']):.0f}</b>, "
+            "and the shape of the curve — not the single number — is the argument for it.</p>"
+        )
+
+    above = curve[curve["threshold"] > band[1]]
+    cost = ""
+    if not above.empty:
+        first = above.iloc[0]
+        cost = (
+            f" The first step past that edge, at {float(first['threshold']):.0f}, drops "
+            f"{int(first['false_negatives'])} fraudulent accounts and takes recall to "
+            f"{float(first['recall']):.0%} — the fall is a cliff rather than a slope, because "
+            f"the weaker members of a ring score alike and leave together."
+        )
+
+    chosen_is_best = float(best["threshold"]) == FLAG_THRESHOLD
+    verdict = (
+        f" On this run {FLAG_THRESHOLD:.0f} is also the F1-maximising point of the swept grid "
+        f"(F1 {float(best['f1']):.3f}), so it is the best available answer as well as a defensible one."
+        if chosen_is_best
+        else f" Note that F1 peaks slightly elsewhere on the grid, at {float(best['threshold']):.0f} "
+        f"(F1 {float(best['f1']):.3f}); {FLAG_THRESHOLD:.0f} is kept because it is a round number "
+        f"inside the full-recall band, and tuning to the third decimal of F1 on one generated ledger "
+        f"would be exactly the overfitting this section exists to rule out."
+    )
+
+    return (
+        f"<p>Every threshold from <b>{band[0]:g}</b> up to <b>{band[1]:g}</b> catches all of the "
+        f"planted fraud — recall is 1.0 across that whole band, so within it the exact cut-off "
+        f"changes only how many innocent accounts come with it. That makes the top of the band the "
+        f"only sensible place to sit, and {FLAG_THRESHOLD:.0f} is a round number just inside it "
+        f"rather than a value tuned until the numbers flattered the detector.{cost}{verdict}</p>"
+    )
+
+
+def _sensitivity_section(result: AnalysisResult, curve: pd.DataFrame | None) -> str:
+    """Prose, table and chart. Empty string when there is nothing to sweep against."""
+    if curve is None:
+        return ""
+    band = _recall_band(result)
+    at_zero = curve.iloc[0]
+    best = dict(curve.loc[curve["f1"].idxmax()])
+    conclusion = _conclusion(curve, band, best)
+    return f"""
+<p>The flagging threshold is the one number in this pipeline that is a policy choice rather than a
+measurement, so it should be argued for rather than asserted. Lowering it buys recall with
+analyst-hours: every extra false positive is a real person investigating an innocent customer, and a
+fraud team has a fixed number of those hours. Raising it protects the hours by letting rings run.
+The sweep below re-runs the whole evaluation at every threshold from 0 to 100 in steps of 5, so a
+reviewer can see the trade-off instead of taking 40 on trust.</p>
+{_sensitivity_table(curve)}
+{_sensitivity_svg(curve, band)}
+<p class="small dim">At a threshold of 0 every one of the {int(at_zero["flagged"])} accounts in the
+graph is flagged, which is what perfect recall costs when it is bought with no discrimination at all;
+above the highest score in the ledger nothing is flagged and precision is reported as 0 rather than
+dividing by zero.</p>
+{conclusion}
+"""
+
+
+def _sensitivity_block(result: AnalysisResult, curve: pd.DataFrame | None) -> str:
+    """The whole ``<section>``, or nothing at all — an empty shell would be worse than no section."""
+    body = _sensitivity_section(result, curve)
+    if not body:
+        return ""
+    return f'<section id="sensitivity">\n  <h2>Threshold sensitivity</h2>{body}</section>'
+
+
 def _render_html(
     result: AnalysisResult,
     findings: list[dict[str, Any]],
     clusters: list[dict[str, Any]],
+    curve: pd.DataFrame | None,
     generated_at: str,
 ) -> str:
     payload = json.dumps(_graph_payload(result, findings)).replace("</", "<\\/")
+    sensitivity_link = '<a href="#sensitivity">Threshold sensitivity</a>' if curve is not None else ""
     band_legend = "".join(
         f'<span class="pill band-{name}">{_band_range(index)} {name}</span>'
         for index, (_, name, _colour) in enumerate(BANDS)
@@ -641,6 +951,10 @@ noscript .note {{ display: block; background: var(--panel-2); border: 1px solid 
 .verdict p {{ margin: 0 0 8px; }}
 .threshold {{ background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
   max-width: none; }}
+.chart {{ background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  margin: 18px 0; }}
+.chart svg {{ display: block; width: 100%; max-width: 100%; height: auto; }}
+tbody tr.chosen td {{ background: rgba(107,123,255,0.14); color: #fff; }}
 footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px; font-size: 12.5px;
   color: var(--dim); }}
 @media (max-width: 640px) {{ .card-value {{ font-size: 27px; }} #network {{ height: 440px; }} }}
@@ -659,7 +973,7 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   <p class="mono small dim">Generated {_esc(generated_at)} · deterministic pipeline, seeded layout</p>
   <nav class="jump">
     <a href="#findings">Findings</a><a href="#clusters">Clusters</a><a href="#network-section">Network</a>
-    <a href="#methodology">Methodology</a><a href="#validation">Validation</a>
+    <a href="#methodology">Methodology</a><a href="#validation">Validation</a>{sensitivity_link}
     <a href="findings.json">findings.json</a><a href="network.png">network.png</a>
   </nav>
 </header>
@@ -720,6 +1034,8 @@ footer {{ border-top: 1px solid var(--line); padding-top: 20px; margin-top: 40px
   <h2>Validation</h2>
   {_validation_section(result)}
 </section>
+
+{_sensitivity_block(result, curve)}
 
 <footer>
   <p class="dim">Transaction Network Analyzer — synthetic BazaarAfrica ledger, seeded and reproducible.

@@ -1,3 +1,8 @@
+# `public/` and `data/` hold generated artefacts written by `just demo`. Reformatting them here
+# would rewrite the exact bytes that were deployed, so the repo and the live URL would disagree
+# after every commit. They are validated by the tests that produce them instead.
+exclude: ^(public|data)/
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
